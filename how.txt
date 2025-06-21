@@ -1,0 +1,371 @@
+04. Write a php program to print list of user info using array.
+
+<html>
+<head>
+    <title>Indexed Array</title>
+</head>
+<body>
+<?php
+$department = array("I.T", "Civil", "Computer", "Machnical", "Electrical", "A.I");
+
+var_dump($department);
+?>
+</body>
+</html>
+
+
+<html>
+<head>
+    <title>Associative Array</title>
+</head>
+<body>
+<?php
+$car = array("Brand"=>"Ford", "Model"=>"Mustang", "Year"=>1964);
+foreach ($car as $x => $y) {
+    echo "$x: $y <br>";
+}
+?>
+</body>
+</html>
+
+
+<html>
+<head>
+    <title>Multidimensional Array</title>
+</head>
+<body>
+<?php
+$student = array(
+    array("Name:" => "Jay", "Age:" => 20, "Email:" => "xyz@gmail.com"),
+    array("Name:" => "Chinmay", "Age:" => 18, "Email:" => "abc@gmail.com"),
+    array("Name:" => "Akshad", "Age:" => 15, "Email:" => "pqr@gmail.com")
+);
+
+echo $student[0]["Name:"];
+echo "<br>";
+echo $student[0]["Age:"];
+echo "<br>";
+echo $student[0]["Email:"];
+echo "<br>";
+
+echo $student[1]["Name:"];
+echo "<br>";
+echo $student[1]["Age:"];
+echo "<br>";
+echo $student[1]["Email:"];
+echo "<br>";
+
+echo $student[2]["Name:"];
+echo "<br>";
+echo $student[2]["Age:"];
+echo "<br>";
+echo $student[2]["Email:"];
+?>
+</body>
+</html>
+
+------------------------------------------------------------------------------------------------------------
+05 Write a php program to fetch user info from MYSQL database.
+
+database.php
+
+<?php
+$db_server = "localhost";
+$db_name   = "studentDB";
+$db_user   = "root";
+$db_pass   = "";
+
+$conn = mysqli_connect($db_server, $db_user, $db_pass, $db_name);
+
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+} else {
+    echo "You are successfully connected to your database!";
+}
+?>
+
+Index.php
+
+<?php
+include("database.php");
+
+$sql = "SELECT * FROM users";
+$result = mysqli_query($conn, $sql);
+
+if (mysqli_num_rows($result) > 0) {
+    echo "<table border='1' cellpadding='10'>";
+    echo "<tr><th>ID</th><th>Name</th><th>Registration Date</th></tr>";
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($row["id"]) . "</td>";
+        echo "<td>" . htmlspecialchars($row["name"]) . "</td>";
+        echo "<td>" . htmlspecialchars($row["reg_date"]) . "</td>";
+        echo "</tr>";
+    }
+    echo "</table>";
+} else {
+    echo "No records found.";
+}
+mysqli_close($conn);
+?>
+-------------------------------------------------------------------------------------------------------------------
+06. Write a PHP program to perform crud operation.
+
+<?php
+// DATABASE CONNECTION
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "students";
+$conn = mysqli_connect($servername, $username, $password, $database);
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// MESSAGE VARIABLE
+$message = "";
+
+// CREATE
+if (isset($_POST['create'])) {
+    $student_id = $_POST['student_id'];
+    $name = $_POST['name'];
+    $course = $_POST['course'];
+    $year = $_POST['year'];
+    $gender = $_POST['gender'];
+    $age = $_POST['age'];
+    $grade = $_POST['grade'];
+
+    $sql = "INSERT INTO students (student_id, name, course, year, gender, age, grade)
+            VALUES ('$student_id', '$name', '$course', '$year', '$gender', '$age', '$grade')";
+    if (mysqli_query($conn, $sql)) {
+        $message = "Record inserted successfully.";
+    } else {
+        $message = "Error: " . mysqli_error($conn);
+    }
+}
+
+// UPDATE
+if (isset($_POST['update'])) {
+    $id = $_POST['student_id'];
+    $name = $_POST['name'];
+    $course = $_POST['course'];
+    $year = $_POST['year'];
+    $gender = $_POST['gender'];
+    $age = $_POST['age'];
+    $grade = $_POST['grade'];
+
+    $fields = [];
+    if ($name) $fields[] = "name='$name'";
+    if ($course) $fields[] = "course='$course'";
+    if ($year) $fields[] = "year='$year'";
+    if ($gender) $fields[] = "gender='$gender'";
+    if ($age) $fields[] = "age='$age'";
+    if ($grade) $fields[] = "grade='$grade'";
+
+    if (!empty($fields)) {
+        $set_clause = implode(", ", $fields);
+        $sql = "UPDATE students SET $set_clause WHERE student_id='$id'";
+        if (mysqli_query($conn, $sql)) {
+            $message = "Record updated successfully.";
+        } else {
+            $message = "Error: " . mysqli_error($conn);
+        }
+    } else {
+        $message = "No fields provided to update.";
+    }
+}
+
+// DELETE
+if (isset($_POST['delete'])) {
+    $id = $_POST['student_id'];
+    $sql = "DELETE FROM students WHERE student_id='$id'";
+    if (mysqli_query($conn, $sql)) {
+        $message = "Record deleted successfully.";
+    } else {
+        $message = "Error: " . mysqli_error($conn);
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PHP CRUD One Page</title>
+</head>
+<body>
+
+<h2>Student Management System</h2>
+<?php if (!empty($message)) echo "<p style='color: green;'>$message</p>"; ?>
+
+<!-- CREATE FORM -->
+<h3>Create Student</h3>
+<form method="post">
+    Student ID: <input type="text" name="student_id" required><br>
+    Name: <input type="text" name="name" required><br>
+    Course: <input type="text" name="course" required><br>
+    Year: 
+    <select name="year" required>
+        <option value="">Select</option>
+        <option value="1">1st</option>
+        <option value="2">2nd</option>
+        <option value="3">3rd</option>
+        <option value="4">4th</option>
+    </select><br>
+    Gender:
+    <input type="radio" name="gender" value="Male" required>Male
+    <input type="radio" name="gender" value="Female">Female
+    <input type="radio" name="gender" value="Other">Other<br>
+    Age: <input type="number" name="age" required><br>
+    Grade: <input type="text" name="grade" required><br>
+    <input type="submit" name="create" value="Create">
+</form>
+
+<hr>
+
+<!-- UPDATE FORM -->
+<h3>Update Student</h3>
+<form method="post">
+    Student ID (to update): <input type="text" name="student_id" required><br>
+    Name: <input type="text" name="name"><br>
+    Course: <input type="text" name="course"><br>
+    Year:
+    <select name="year">
+        <option value="">Select</option>
+        <option value="1">1st</option>
+        <option value="2">2nd</option>
+        <option value="3">3rd</option>
+        <option value="4">4th</option>
+    </select><br>
+    Gender:
+    <input type="radio" name="gender" value="Male">Male
+    <input type="radio" name="gender" value="Female">Female
+    <input type="radio" name="gender" value="Other">Other<br>
+    Age: <input type="number" name="age"><br>
+    Grade: <input type="text" name="grade"><br>
+    <input type="submit" name="update" value="Update">
+</form>
+
+<hr>
+
+<!-- DELETE FORM -->
+<h3>Delete Student</h3>
+<form method="post">
+    Student ID (to delete): <input type="text" name="student_id" required><br>
+    <input type="submit" name="delete" value="Delete">
+</form>
+
+<hr>
+
+<!-- DISPLAY STUDENTS -->
+<h3>Students List</h3>
+<table border="1" cellpadding="5">
+    <tr>
+        <th>ID</th><th>Name</th><th>Course</th><th>Year</th>
+        <th>Gender</th><th>Age</th><th>Grade</th>
+    </tr>
+    <?php
+    $sql = "SELECT * FROM students";
+    $result = mysqli_query($conn, $sql);
+    if ($result && mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            echo "<tr>
+                    <td>{$row['student_id']}</td>
+                    <td>{$row['name']}</td>
+                    <td>{$row['course']}</td>
+                    <td>{$row['year']}</td>
+                    <td>{$row['gender']}</td>
+                    <td>{$row['age']}</td>
+                    <td>{$row['grade']}</td>
+                  </tr>";
+        }
+    } else {
+        echo "<tr><td colspan='7'>No records found.</td></tr>";
+    }
+    mysqli_close($conn);
+    ?>
+</table>
+
+</body>
+</html>
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+07. Write a PHP function to check palindrome strings.
+
+<?php
+function isPalindrome($str) {
+    $str = strtolower($str);
+    $reversed = strrev($str);
+    if ($str == $reversed) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+$input = "LEVEL";
+if (isPalindrome($input)) {
+    echo "$input is a Palindrome.";
+} else {
+    echo "$input is NOT a Palindrome.";
+}
+?>
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+08. Write a PHP program using for loop to add all the integers between 0 and 30 and display the total.
+
+<?php
+$sum = 0;
+
+for ($j = 0; $j <= 30; $j++) {
+    $sum += $j;
+}
+
+echo "The sum of numbers from 0 to 30 is: " . $sum;
+?>
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+09. Create a script to construct the pyramid of asterisk ("*") using nested for loop.
+
+# Number of rows for the pyramid
+rows = 5
+
+for i in range(rows):
+    # Print leading spaces
+    for j in range(rows - i - 1):
+        print(" ", end="")
+    # Print asterisks
+    for k in range(2 * i + 1):
+        print("*", end="")
+    # Move to the next line
+    print()
+---------------------------------------------------------------------------------------------------------------------------------------------
+10. Write a program to calculate factorial of a number using for loop.
+
+<?php
+$num = 5;
+$factorial = 1;
+
+for ($x = $num; $x >= 1; $x--) {
+    $factorial *= $x;
+}
+
+echo "The factorial of $num is $factorial";
+?>
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+11. WAP to count the specific characters in text.
+
+<?php
+$text = "I am a Web developer";
+$search_char = "e";
+$count = 0;
+
+for ($x = 0; $x < strlen($text); $x++) {
+    if (substr($text, $x, 1) == $search_char) {
+        $count++;
+    }
+}
+
+echo "The character '$search_char' exists in '$text' $count times.";
+?>
